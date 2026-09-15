@@ -1,0 +1,26 @@
+# Google Apps Script backend (khong deploy len web tinh)
+code.gs
+
+# File test/development
+test-payload.json
+test-payload-dedup.json
+test-payload-flow.json
+test-payload-flat.json
+test-flow.ps1
+test-api.ps1
+test-post.ps1
+test-lead.html
+
+# Generate helper
+generate-secret.gs
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log

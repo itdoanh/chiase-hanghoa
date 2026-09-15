@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Đăng Ký Thành Công | APEX Fintech</title>
+<meta name="description" content="Cảm ơn bạn đã đăng ký tham gia buổi chia sẻ đầu tư hàng hóa phái sinh cùng APEX Fintech - Thành viên MXV Số 080.">
+<meta name="robots" content="noindex, follow">
+<meta name="theme-color" content="#0A192F">
+
+<!-- Favicon -->
+<link rel="icon" type="image/webp" href="assets/img/logo_APEX_K_NEN.webp">
+<link rel="apple-touch-icon" href="assets/img/logo_APEX_K_NEN.webp">
+
+<!-- Fonts (đồng bộ với index.html) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+<!-- Tailwind CSS (CDN) -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Custom Tailwind Config (đồng bộ với index.html) -->
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        navy: { 900: '#0A192F', 800: '#0F2438', 700: '#1E293B', 600: '#1F3A5F' },
+        gold: { DEFAULT: '#F5A623', light: '#FFA94D' },
+        orange: { DEFAULT: '#FF6B00', dark: '#E65100' }
+      },
+      fontFamily: {
+        sans: ['Inter', 'Be Vietnam Pro', 'system-ui', 'sans-serif'],
+        heading: ['Plus Jakarta Sans', 'Be Vietnam Pro', 'sans-serif'],
+        vi: ['Be Vietnam Pro', 'Inter', 'sans-serif']
+      }
+    }
+  }
+}
+</script>
+
+<!-- Dùng chung CSS với index.html -->
+<link rel="stylesheet" href="assets/css/style.css?v=10">
+
+<!-- Internal CSS riêng cho trang chucmung -->
+<style>
+  /* =============== BASE =============== */
+  body.success-page {
+    background: linear-gradient(135deg, #0A192F 0%, #1E293B 50%, #0F2438 100%);
+    min-height: 100vh;
+    color: #fff;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* =============== PARTICLES BACKGROUND =============== */
+  .success-particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .success-particles .particle {
+    position: absolute;
+    border-radius: 50%;
+    bottom: -20px;
+    opacity: 0.7;
+    animation: particleFloat linear infinite;
+  }
+  @keyframes particleFloat {
+    0%   { transform: translateY(0) translateX(0); opacity: 0; }
+    10%  { opacity: 0.7; }
+    90%  { opacity: 0.5; }
+    100% { transform: translateY(-110vh) translateX(40px); opacity: 0; }
+  }
+
+  /* =============== BACK HOME BUTTON =============== */
+  .back-home {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 50;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s ease;
+  }
+  .back-home:hover {
+    background: rgba(255, 107, 0, 0.2);
+    border-color: #FF6B00;
+    transform: translateX(-4px);
+  }
+  .back-home svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* =============== MAIN SECTION =============== */
+  .success-section {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px 40px;
+  }
+
+  /* =============== SUCCESS CARD =============== */
+  .success-card {
+    width: 100%;
+    max-width: 640px;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 28px;
+    padding: 48px 36px;
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+    animation: cardIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes cardIn {
+    0%   { opacity: 0; transform: translateY(40px) scale(0.95); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @media (min-width: 768px) {
+    .success-card { padding: 56px 48px; }
+  }
+
+  /* =============== CHECK ICON =============== */
+  .success-icon-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+  .success-icon-circle {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+      0 0 0 0 rgba(16, 185, 129, 0.6),
+      0 12px 32px rgba(16, 185, 129, 0.4);
+    animation:
+      iconIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both,
+      iconPulse 2s ease-out 1s infinite;
+  }
+  @keyframes iconIn {
+    0%   { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes iconPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5), 0 12px 32px rgba(16, 185, 129, 0.4); }
+    70%  { box-shadow: 0 0 0 24px rgba(16, 185, 129, 0), 0 12px 32px rgba(16, 185, 129, 0.4); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0), 0 12px 32px rgba(16, 185, 129, 0.4); }
+  }
+  .success-icon-circle svg {
+    width: 64px;
+    height: 64px;
+    color: #fff;
+    stroke-dasharray: 60;
+    stroke-dashoffset: 60;
+    animation: drawCheck 0.6s ease-out 0.5s forwards;
+  }
+  @keyframes drawCheck {
+    to { stroke-dashoffset: 0; }
+  }
+
+  /* =============== TEXT =============== */
+  .success-title {
+    font-family: 'Plus Jakarta Sans', 'Be Vietnam Pro', sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1.15;
+    margin: 0 0 12px 0;
+    color: #fff;
+  }
+  @media (min-width: 768px) {
+    .success-title { font-size: 44px; }
+  }
+  .success-title .highlight {
+    background: linear-gradient(135deg, #FF6B00 0%, #F5A623 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .success-greeting {
+    font-size: 18px;
+    color: #FFA94D;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+  }
+
+  .success-subtitle {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.78);
+    line-height: 1.6;
+    margin: 0 0 32px 0;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* =============== EVENT INFO GRID =============== */
+  .event-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 480px) {
+    .event-grid { gap: 8px; }
+  }
+  .event-item {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 16px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s;
+  }
+  .event-item:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 107, 0, 0.4);
+  }
+  .event-item-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(255, 107, 0, 0.15), rgba(245, 166, 35, 0.15));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFA94D;
+  }
+  .event-item-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+  .event-item-label {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .event-item-value {
+    font-size: 14px;
+    color: #fff;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  /* =============== DIVIDER =============== */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    margin: 8px 0 24px;
+  }
+
+  /* =============== NOTE =============== */
+  .success-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: rgba(245, 166, 35, 0.08);
+    border: 1px solid rgba(245, 166, 35, 0.2);
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-bottom: 28px;
+    text-align: left;
+  }
+  .success-note-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(245, 166, 35, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFA94D;
+  }
+  .success-note-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+  .success-note p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.78);
+  }
+  .success-note strong {
+    color: #FFA94D;
+  }
+
+  /* =============== ACTION BUTTONS =============== */
+  .action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 480px) {
+    .action-buttons { grid-template-columns: 1fr; }
+  }
+  .action-buttons a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 20px;
+    border-radius: 9999px;
+    font-weight: 700;
+    font-size: 15px;
+    text-decoration: none;
+    transition: all 0.25s;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #FF6B00 0%, #F5A623 100%);
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(255, 107, 0, 0.4);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(255, 107, 0, 0.55);
+  }
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  }
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.14);
+    transform: translateY(-2px);
+  }
+  .action-buttons svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  /* =============== COUNTDOWN TIMER =============== */
+  .countdown-box {
+    margin: 28px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(255, 107, 0, 0.1), rgba(245, 166, 35, 0.05));
+    border: 1px solid rgba(255, 107, 0, 0.25);
+    border-radius: 18px;
+  }
+  .countdown-box__title {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 12px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .countdown-digits {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .countdown-digit-unit {
+    min-width: 64px;
+    padding: 10px 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    text-align: center;
+  }
+  .countdown-digit-value {
+    font-family: 'Plus Jakarta Sans', monospace;
+    font-size: 28px;
+    font-weight: 900;
+    color: #FFA94D;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .countdown-digit-label {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    margin-top: 4px;
+    letter-spacing: 0.05em;
+  }
+
+  /* =============== ERROR STATE =============== */
+  .error-box {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    color: #FCA5A5;
+    font-size: 14px;
+    text-align: center;
+  }
+  .error-box strong { color: #fff; }
+</style>
+</head>
+
+<body class="success-page font-sans">
+
+<!-- Floating particles background -->
+<div class="success-particles" id="particles" aria-hidden="true"></div>
+
+<!-- Back to home -->
+<a href="index.html" class="back-home" aria-label="Về trang chủ">
+  <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+  </svg>
+  <span>Về trang chủ</span>
+</a>
+
+<!-- Main content -->
+<section class="success-section">
+  <div class="success-card">
+
+    <!-- Check icon (animated) -->
+    <div class="success-icon-wrap">
+      <div class="success-icon-circle">
+        <svg viewBox="0 0 52 52" fill="none" aria-hidden="true">
+          <path d="M14 27 L22 35 L38 17" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Title -->
+    <h1 class="success-title">
+      Đăng ký <span class="highlight">thành công!</span>
+    </h1>
+
+    <!-- Greeting (filled by JS) -->
+    <p class="success-greeting" id="greetingText">Cảm ơn bạn đã đăng ký</p>
+
+    <!-- Subtitle -->
+    <p class="success-subtitle">
+      Chúng tôi đã ghi nhận thông tin của bạn. Link Zoom và hướng dẫn tham gia sẽ được gửi qua Zalo trong thời gian sớm nhất.
+    </p>
+
+    <!-- Countdown to webinar start -->
+    <div class="countdown-box" id="countdownBox" style="display:none;">
+      <p class="countdown-box__title">⏱️ Buổi chia sẻ bắt đầu sau</p>
+      <div class="countdown-digits">
+        <div class="countdown-digit-unit">
+          <div class="countdown-digit-value" id="cdDays">00</div>
+          <div class="countdown-digit-label">Ngày</div>
+        </div>
+        <div class="countdown-digit-unit">
+          <div class="countdown-digit-value" id="cdHours">00</div>
+          <div class="countdown-digit-label">Giờ</div>
+        </div>
+        <div class="countdown-digit-unit">
+          <div class="countdown-digit-value" id="cdMins">00</div>
+          <div class="countdown-digit-label">Phút</div>
+        </div>
+        <div class="countdown-digit-unit">
+          <div class="countdown-digit-value" id="cdSecs">00</div>
+          <div class="countdown-digit-label">Giây</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Event info -->
+    <div class="event-grid">
+      <div class="event-item">
+        <div class="event-item-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <div class="event-item-label">Ngày</div>
+        <div class="event-item-value">Thứ Ba<br>15/09/2026</div>
+      </div>
+      <div class="event-item">
+        <div class="event-item-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div class="event-item-label">Giờ</div>
+        <div class="event-item-value">20:00<br>22:00</div>
+      </div>
+      <div class="event-item">
+        <div class="event-item-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+        </div>
+        <div class="event-item-label">Nền tảng</div>
+        <div class="event-item-value">Zoom<br>Online</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Note -->
+    <div class="success-note">
+      <div class="success-note-icon">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <p>
+        <strong>APEX Fintech</strong> – Thành viên Kinh doanh Số 080, Sở Giao dịch Hàng hóa Việt Nam (MXV), quản lý bởi <strong>Bộ Công Thương</strong>. Mọi thông tin của bạn được bảo mật theo quy định pháp luật.
+      </p>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="action-buttons">
+      <a href="https://zalo.me/0984386538" target="_blank" rel="noopener" class="btn-primary">
+        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+        </svg>
+        <span>Liên hệ Zalo CSKH</span>
+      </a>
+      <a href="tel:0984386538" class="btn-secondary">
+        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+        <span>Hotline: 0984386538</span>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- (pháo giấy đã được tắt theo yêu cầu) -->
+
+<script>
+(function() {
+  'use strict';
+
+  // ════════════════════════════════════════════════════════════════
+  // 1. LẤY DATA TỪ LOCALSTORAGE + QUERY STRING
+  // ════════════════════════════════════════════════════════════════
+  function getLeadData() {
+    var name = '', idk = '', form = '', ts = 0;
+    try {
+      name = localStorage.getItem('apex_lead_name') || '';
+      idk  = localStorage.getItem('apex_lead_idk') || '';
+      form = localStorage.getItem('apex_lead_form_type') || '';
+      ts   = parseInt(localStorage.getItem('apex_lead_sent_at') || '0', 10);
+    } catch(_) {}
+    // Override từ query string (ưu tiên hơn)
+    try {
+      var params = new URLSearchParams(location.search);
+      if (params.get('idk'))  idk  = params.get('idk');
+      if (params.get('form')) form = params.get('form');
+      var tsParam = parseInt(params.get('ts') || '0', 10);
+      if (tsParam) ts = tsParam;
+    } catch(_) {}
+    return { name: name, idk: idk, form: form, ts: ts };
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // 2. UPDATE GREETING
+  // ════════════════════════════════════════════════════════════════
+  function updateGreeting(name) {
+    var el = document.getElementById('greetingText');
+    if (!el) return;
+    if (name && name.length > 0 && name !== 'lead') {
+      el.textContent = 'Cảm ơn ' + name + ' đã đăng ký 🎉';
+    } else {
+      el.textContent = 'Cảm ơn bạn đã đăng ký 🎉';
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // 3. (CONFETTI đã tắt theo yêu cầu)
+  // ════════════════════════════════════════════════════════════════
+
+  // ════════════════════════════════════════════════════════════════
+  // 4. PARTICLES BACKGROUND
+  // ════════════════════════════════════════════════════════════════
+  function createParticles() {
+    var container = document.getElementById('particles');
+    if (!container) return;
+    var colors = ['#F5A623', '#10b981', '#FF6B00', '#FFA94D', '#3b82f6'];
+    var count = window.innerWidth < 768 ? 15 : 30;
+    for (var i = 0; i < count; i++) {
+      var p = document.createElement('div');
+      p.className = 'particle';
+      var size = Math.random() * 4 + 2;
+      var duration = Math.random() * 20 + 20;
+      var delay = Math.random() * 15;
+      var left = Math.random() * 100;
+      var color = colors[Math.floor(Math.random() * colors.length)];
+      p.style.cssText =
+        'width:' + size + 'px;height:' + size + 'px;' +
+        'left:' + left + '%;' +
+        'background:' + color + ';' +
+        'animation-duration:' + duration + 's;' +
+        'animation-delay:' + delay + 's;';
+      container.appendChild(p);
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // 5. COUNTDOWN TO WEBINAR (15/09/2026 20:00 ICT = UTC+7)
+  // ════════════════════════════════════════════════════════════════
+  function startCountdown() {
+    var target = new Date('2026-09-15T20:00:00+07:00').getTime();
+    var box = document.getElementById('countdownBox');
+    if (!box) return;
+
+    var $d = document.getElementById('cdDays');
+    var $h = document.getElementById('cdHours');
+    var $m = document.getElementById('cdMins');
+    var $s = document.getElementById('cdSecs');
+
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+    function tick() {
+      var diff = target - Date.now();
+      if (diff <= 0) {
+        box.style.display = 'none';
+        return;
+      }
+      box.style.display = 'block';
+      var days  = Math.floor(diff / 86400000);
+      var hours = Math.floor((diff % 86400000) / 3600000);
+      var mins  = Math.floor((diff % 3600000) / 60000);
+      var secs  = Math.floor((diff % 60000) / 1000);
+      if ($d) $d.textContent = pad(days);
+      if ($h) $h.textContent = pad(hours);
+      if ($m) $m.textContent = pad(mins);
+      if ($s) $s.textContent = pad(secs);
+    }
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // 6. META PIXEL: CompleteRegistration (chỉ 1 lần / session)
+  // ════════════════════════════════════════════════════════════════
+  function firePixelCompleteRegistration() {
+    try {
+      var perfEntries = performance.getEntriesByType && performance.getEntriesByType('navigation');
+      var isReload = perfEntries && perfEntries.length > 0 && perfEntries[0].type === 'reload';
+      var alreadyTracked = sessionStorage.getItem('apex_lead_tracked');
+      if (!isReload && !alreadyTracked) {
+        sessionStorage.setItem('apex_lead_tracked', 'true');
+        if (typeof fbq !== 'undefined') {
+          fbq('track', 'CompleteRegistration', {
+            content_name: 'Dang ky tu van APEX Fintech',
+            status: 'complete'
+          });
+        }
+      }
+    } catch (_) {}
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // 7. INIT
+  // ════════════════════════════════════════════════════════════════
+  function init() {
+    var data = getLeadData();
+    console.log('[Chucmung] Data:', data);
+
+    updateGreeting(data.name);
+    createParticles();
+    startCountdown();
+    firePixelCompleteRegistration();
+    // Pháo giấy đã tắt
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+<!-- Meta Pixel (giống index.html) -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._bq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1731191014777446');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1731191014777446&ev=PageView&noscript=1"/></noscript>
+
+</body>
+</html>
