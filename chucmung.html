@@ -574,10 +574,11 @@ tailwind.config = {
   function getLeadData() {
     var name = '', idk = '', form = '', ts = 0;
     try {
-      name = localStorage.getItem('apex_lead_name') || '';
-      idk  = localStorage.getItem('apex_lead_idk') || '';
-      form = localStorage.getItem('apex_lead_form_type') || '';
-      ts   = parseInt(localStorage.getItem('apex_lead_sent_at') || '0', 10);
+      var SS = window.ApexSafeStorage || { get: function(k){ try { return localStorage.getItem(k); } catch(_) { return null; } } };
+      name = SS.get('apex_lead_name') || '';
+      idk  = SS.get('apex_lead_idk') || '';
+      form = SS.get('apex_lead_form_type') || '';
+      ts   = parseInt(SS.get('apex_lead_sent_at') || '0', 10);
     } catch(_) {}
     // Override từ query string (ưu tiên hơn)
     try {
@@ -715,8 +716,11 @@ tailwind.config = {
 
 <!-- Meta Pixel (giống index.html) -->
 <script>
-!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._bq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '1731191014777446');
+// Chỉ init pixel nếu chưa có (tránh "Multiple pixels with conflicting versions" khi navigate từ index.html)
+if (!window.fbq) {
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._bq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1731191014777446');
+}
 fbq('track', 'PageView');
 </script>
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1731191014777446&ev=PageView&noscript=1"/></noscript>

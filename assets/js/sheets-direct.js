@@ -41,6 +41,40 @@
     location.protocol === 'file:');
 
   // ════════════════════════════════════════════════════════════════════
+  //  safeStorage — fallback khi localStorage bị Tracking Prevention block
+  //  Thứ tự ưu tiên: localStorage → sessionStorage → in-memory Map
+  //  Chrome/Edge/Safari đều dùng được. Không bao giờ throw exception.
+  // ════════════════════════════════════════════════════════════════════
+  var _memStore = {};
+  function safeStorageGet(key) {
+    try { var v = localStorage.getItem(key); if (v !== null) return v; } catch (_) {}
+    try { var v2 = sessionStorage.getItem(key); if (v2 !== null) return v2; } catch (_) {}
+    return (typeof _memStore[key] !== 'undefined') ? _memStore[key] : null;
+  }
+  function safeStorageSet(key, value) {
+    try { localStorage.setItem(key, value); return; } catch (_) {}
+    try { sessionStorage.setItem(key, value); return; } catch (_) {}
+    try { _memStore[key] = value; } catch (_) {}
+  }
+  function safeStorageDel(key) {
+    try { localStorage.removeItem(key); } catch (_) {}
+    try { sessionStorage.removeItem(key); } catch (_) {}
+    try { delete _memStore[key]; } catch (_) {}
+  }
+  function safeStorageClear() {
+    try { localStorage.clear(); } catch (_) {}
+    try { sessionStorage.clear(); } catch (_) {}
+    try { _memStore = {}; } catch (_) {}
+  }
+  // Expose ra window để main.js / chucmung.html / tracker.js dùng chung
+  window.ApexSafeStorage = {
+    get: safeStorageGet,
+    set: safeStorageSet,
+    del: safeStorageDel,
+    clear: safeStorageClear
+  };
+
+  // ════════════════════════════════════════════════════════════════════
   //  INTERNAL STATE
   // ════════════════════════════════════════════════════════════════════
   var queue = [];
@@ -312,7 +346,7 @@
 
   function loadQueue_() {
     try {
-      var raw = localStorage.getItem(QUEUE_KEY);
+      var raw = safeStorageGet(QUEUE_KEY);
       if (!raw) return [];
       var arr = JSON.parse(raw);
       return Array.isArray(arr) ? arr : [];
@@ -322,7 +356,7 @@
   function saveQueue_() {
     try {
       if (queue.length > MAX_QUEUE_SIZE) queue = queue.slice(-MAX_QUEUE_SIZE);
-      localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
+      safeStorageSet(QUEUE_KEY, JSON.stringify(queue));
     } catch (_) {}
   }
 

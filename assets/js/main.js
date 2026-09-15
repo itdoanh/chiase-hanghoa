@@ -241,13 +241,13 @@ form.addEventListener('submit', async e => {
 
         if (sendResult.ok) {
           try {
-            localStorage.setItem('apex_lead_id', 'ch_' + sendResult.id);
-            localStorage.setItem('apex_lead_name', name);
-            localStorage.setItem('apex_lead_phone', phone);
+            window.ApexSafeStorage.set('apex_lead_id', 'ch_' + sendResult.id);
+            window.ApexSafeStorage.set('apex_lead_name', name);
+            window.ApexSafeStorage.set('apex_lead_phone', phone);
             // Lưu thêm metadata cho chucmung.html
-            localStorage.setItem('apex_lead_idk', idempotencyKey);
-            localStorage.setItem('apex_lead_form_type', cfg.type);
-            localStorage.setItem('apex_lead_sent_at', Date.now());
+            window.ApexSafeStorage.set('apex_lead_idk', idempotencyKey);
+            window.ApexSafeStorage.set('apex_lead_form_type', cfg.type);
+            window.ApexSafeStorage.set('apex_lead_sent_at', Date.now());
           } catch(_){}
           trackEvent('form_submit_success', `${cfg.type}|id=${sendResult.id}|dur=${Date.now() - submitStartedAt}ms`);
 
@@ -623,13 +623,13 @@ form.addEventListener('submit', async e => {
 
         if (sendResult.ok) {
           try {
-            localStorage.setItem('apex_lead_id', 'ch_' + sendResult.id);
-            localStorage.setItem('apex_lead_name', name);
-            localStorage.setItem('apex_lead_phone', phone);
-            localStorage.setItem('apex_lead_idk', idempotencyKey);
-            localStorage.setItem('apex_lead_form_type', 'multistep');
-            localStorage.setItem('apex_lead_channel', channel);
-            localStorage.setItem('apex_lead_sent_at', Date.now());
+            window.ApexSafeStorage.set('apex_lead_id', 'ch_' + sendResult.id);
+            window.ApexSafeStorage.set('apex_lead_name', name);
+            window.ApexSafeStorage.set('apex_lead_phone', phone);
+            window.ApexSafeStorage.set('apex_lead_idk', idempotencyKey);
+            window.ApexSafeStorage.set('apex_lead_form_type', 'multistep');
+            window.ApexSafeStorage.set('apex_lead_channel', channel);
+            window.ApexSafeStorage.set('apex_lead_sent_at', Date.now());
           } catch(_){}
           trackEvent('multistep_submit_success', `${channel}|id=${sendResult.id}|dur=${Date.now() - submitStartedAt}ms`);
 
