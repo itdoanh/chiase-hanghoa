@@ -3,6 +3,21 @@
 # Tối ưu performance + bảo mật
 # ============================================
 
+# ===== MIME types (fix 404 cho .webp, .mp4 trên một số host) =====
+<IfModule mod_mime.c>
+  AddType image/webp .webp
+  AddType image/jpeg .jpg .jpeg
+  AddType image/png .png
+  AddType image/svg+xml .svg
+  AddType image/x-icon .ico
+  AddType video/mp4 .mp4
+  AddType video/webm .webm
+  AddType application/javascript .js
+  AddType text/css .css
+  AddType font/woff2 .woff2
+  AddType font/woff .woff
+</IfModule>
+
 # ===== GZIP (tiết kiệm băng thông) =====
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json text/xml application/xml image/svg+xml

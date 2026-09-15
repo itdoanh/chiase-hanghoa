@@ -564,6 +564,10 @@ tailwind.config = {
 (function() {
   'use strict';
 
+  // DEBUG flag — Production: false (tắt console). Dev: true.
+  var DEBUG = false;
+  var _log = function () { if (DEBUG) { try { console.log.apply(console, ['[Chucmung]'].concat(Array.prototype.slice.call(arguments))); } catch (_) {} } };
+
   // ════════════════════════════════════════════════════════════════
   // 1. LẤY DATA TỪ LOCALSTORAGE + QUERY STRING
   // ════════════════════════════════════════════════════════════════
@@ -689,7 +693,7 @@ tailwind.config = {
   // ════════════════════════════════════════════════════════════════
   function init() {
     var data = getLeadData();
-    console.log('[Chucmung] Data:', data);
+    _log('Data:', data);
 
     updateGreeting(data.name);
     createParticles();
@@ -705,6 +709,9 @@ tailwind.config = {
   }
 })();
 </script>
+
+<!-- protect.js: chan chuot phai + F12 + detect DevTools -->
+<script src="assets/js/protect.js?v=1"></script>
 
 <!-- Meta Pixel (giống index.html) -->
 <script>

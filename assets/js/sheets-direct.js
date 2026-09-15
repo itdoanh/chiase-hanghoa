@@ -30,6 +30,12 @@
   // Max số lần retry cho mỗi lead (để tránh gửi vô hạn khi bị CORS/file://)
   var MAX_RETRY_PER_LEAD = 2;
 
+  // DEBUG flag — BẬT = true khi dev, TẮT = false khi deploy production
+  // (ẩn toàn bộ console.log/warn để tránh leak URL/secret & thông tin nhạy cảm)
+  var DEBUG = false;
+  var _log = function () { if (DEBUG) { try { console.log.apply(console, ['[SheetsDirect]'].concat(Array.prototype.slice.call(arguments))); } catch (_) {} } };
+  var _warn = function () { if (DEBUG) { try { console.warn.apply(console, ['[SheetsDirect]'].concat(Array.prototype.slice.call(arguments))); } catch (_) {} } };
+
   // Detect môi trường: nếu là file:// thì KHÔNG retry queue (tránh duplicate)
   var IS_FILE_PROTOCOL = (typeof location !== 'undefined' &&
     location.protocol === 'file:');
@@ -59,14 +65,14 @@
   function send(leadInput) {
     if (!ENABLED) return Promise.resolve({ ok: false, error: 'disabled' });
     if (!APEX_SHEETS_WEBAPP_URL || !APEX_LEADS_SECRET) {
-      console.warn('[SheetsDirect] Webapp URL hoặc SECRET chưa được cấu hình.');
+      _warn('Webapp URL hoặc SECRET chưa được cấu hình.');
       return Promise.resolve({ ok: false, error: 'not_configured' });
     }
 
     // ─── Dedup check: nếu idempotency_key đã gửi OK trong session → skip ───
     var idemKey = leadInput && leadInput.idempotency_key;
     if (idemKey && sentKeys[idemKey]) {
-      console.log('[SheetsDirect] Skip duplicate (idempotency_key already sent):', idemKey);
+      _log('Skip duplicate (idempotency_key already sent):', idemKey);
       return Promise.resolve({ ok: true, status: 200, dedup: true });
     }
 
@@ -253,10 +259,10 @@
           lastResult = result;
 
           if (res.ok) {
-            console.log('[SheetsDirect] OK', res.status, payload.lead && payload.lead.phone);
+            _log('OK', res.status, payload.lead && payload.lead.phone);
             if (idemKey) sentKeys[idemKey] = Date.now();
           } else {
-            console.warn('[SheetsDirect] HTTP', res.status, payload.lead && payload.lead.phone);
+            _warn('HTTP', res.status, payload.lead && payload.lead.phone);
             handleRetry_(payload, attempt);
           }
           resolve(result);
@@ -266,7 +272,7 @@
           var idemKey = (payload.lead && payload.lead.idempotency_key) || '';
           var result = { ok: false, error: err.name || 'network', message: String(err), ts: Date.now(), idem: idemKey };
           lastResult = result;
-          console.warn('[SheetsDirect] Send failed:', err && err.message, payload.lead && payload.lead.phone);
+          _warn('Send failed:', err && err.message, payload.lead && payload.lead.phone);
           handleRetry_(payload, attempt);
           resolve(result);
         });
@@ -286,12 +292,12 @@
   function handleRetry_(payload, attempt) {
     // Môi trường file:// → không retry queue (gây duplicate vô hạn)
     if (IS_FILE_PROTOCOL) {
-      console.warn('[SheetsDirect] file:// detected → skip retry queue');
+      _warn('file:// detected → skip retry queue');
       return;
     }
     // Đã retry đủ → không enqueue nữa
     if (attempt >= MAX_RETRY_PER_LEAD) {
-      console.warn('[SheetsDirect] Max retry reached → drop (attempt=' + attempt + '/max=' + MAX_RETRY_PER_LEAD + ')');
+      _warn('Max retry reached → drop (attempt=' + attempt + '/max=' + MAX_RETRY_PER_LEAD + ')');
       return;
     }
     enqueueWithAttempt_(payload, attempt + 1);
@@ -362,7 +368,7 @@
           if (attempt < MAX_RETRY_PER_LEAD) {
             stillFailing.push({ payload: payload, attempt: attempt + 1 });
           } else {
-            console.warn('[SheetsDirect] Drop after max retry (attempt=' + attempt + ')');
+            _warn('Drop after max retry (attempt=' + attempt + ')');
           }
         }
         // Nếu OK → đã được lưu vào sentKeys (trong doSend_)
@@ -400,7 +406,7 @@
   // Migration: nếu item cũ là payload thuần (không có wrapper {payload, attempt})
   // → wrap lại. Nếu là file:// → clear queue luôn (tránh duplicate cũ).
   if (IS_FILE_PROTOCOL && queue.length) {
-    console.warn('[SheetsDirect] file:// detected → clear queue (no auto-retry)');
+    _warn('file:// detected → clear queue (no auto-retry)');
     queue = [];
     saveQueue_();
   } else {
@@ -417,7 +423,7 @@
     }).filter(Boolean);
 
     if (queue.length) {
-      console.log('[SheetsDirect] Có ' + queue.length + ' lead chờ gửi lại');
+      _log('Có ' + queue.length + ' lead chờ gửi lại');
       // Đợi 2s cho page ổn định rồi flush
       setTimeout(flushQueueInternal_, 2000);
     }
@@ -433,7 +439,7 @@
   // Flush khi online
   window.addEventListener('online', function () {
     if (queue.length > 0) {
-      console.log('[SheetsDirect] Online → flush queue');
+      _log('Online → flush queue');
       flushQueueInternal_();
     }
   });
@@ -571,13 +577,18 @@
     return iso.replace('T', ' ');
   }
 
-  // Log init
-  console.log(
-    '%c [SheetsDirect] %c ' + (ENABLED ? 'enabled' : 'DISABLED') +
-    ' / URL: ' + (APEX_SHEETS_WEBAPP_URL ? APEX_SHEETS_WEBAPP_URL.slice(0, 50) + '...' : 'NOT CONFIGURED') +
-    ' / Secret: ' + (APEX_LEADS_SECRET ? '✓' : '✗') +
-    ' / Queue: ' + queue.length,
-    'background: #0A192F; color: #fff; padding: 2px 6px; border-radius: 3px;',
-    'color: #888;'
-  );
+  // Log init — CHỈ hiện khi DEBUG=true (mặc định tắt ở production để bảo mật)
+  // Không in URL/secret ra console ở production.
+  if (DEBUG) {
+    try {
+      console.log(
+        '%c [SheetsDirect] %c ' + (ENABLED ? 'enabled' : 'DISABLED') +
+        ' / URL: ' + (APEX_SHEETS_WEBAPP_URL ? '[REDACTED]' : 'NOT CONFIGURED') +
+        ' / Secret: ' + (APEX_LEADS_SECRET ? '✓' : '✗') +
+        ' / Queue: ' + queue.length,
+        'background: #0A192F; color: #fff; padding: 2px 6px; border-radius: 3px;',
+        'color: #888;'
+      );
+    } catch (_) {}
+  }
 })();

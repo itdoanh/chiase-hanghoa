@@ -5,10 +5,13 @@
    - Đệm events vào window.ApexTracker.__buf[]
    - trackEvent() trong main.js vẫn gọi được window.ApexTracker.send()
    - Không còn POST sang /api/track.php
+   - DEBUG=false ở production để tắt console log
    ============================================ */
 
 (function(){
   'use strict';
+
+  var DEBUG = false; // Production: false. Dev: true.
 
   var MAX_BUFFER = 200;
   var buffer = [];
@@ -27,7 +30,7 @@
       }
       buffer.push(ev);
       if (buffer.length > MAX_BUFFER) buffer.shift();
-      try { console.log('[ApexTracker]', ev.type, ev.v || ''); } catch(_) {}
+      if (DEBUG) { try { console.log('[ApexTracker]', ev.type, ev.v || ''); } catch(_) {} }
     },
     flush: function(){ /* no-op: không gửi đi đâu */ },
     isBot: false,

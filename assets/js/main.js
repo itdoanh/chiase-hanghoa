@@ -14,6 +14,14 @@
   (function(){
     'use strict';
 
+    // ════════════════════════════════════════════════════════════════
+    //  DEBUG FLAG — Production: false (tắt console để tránh leak info)
+    //  Dev:        true
+    // ════════════════════════════════════════════════════════════════
+    var DEBUG = false;
+    var _log = function () { if (DEBUG) { try { console.log.apply(console, ['[APEX]'].concat(Array.prototype.slice.call(arguments))); } catch (_) {} } };
+    var _warn = function () { if (DEBUG) { try { console.warn.apply(console, ['[APEX]'].concat(Array.prototype.slice.call(arguments))); } catch (_) {} } };
+
     const ready = fn => document.readyState !== 'loading'
       ? fn()
       : document.addEventListener('DOMContentLoaded', fn);
@@ -111,12 +119,12 @@
 
     function setupForm(cfg){
       const form = document.getElementById(cfg.id);
-      if (!form) { console.warn('[APEX] form NOT FOUND:', cfg.id); return; }
+      if (!form) { _warn('form NOT FOUND:', cfg.id); return; }
       const nameInput = document.getElementById(cfg.nameField);
       const phoneInput = document.getElementById(cfg.phoneField);
       const phoneHint = document.getElementById(cfg.phoneHintId);
       const successEl = document.getElementById(cfg.successId);
-      console.log('[APEX] setupForm:', cfg.id, 'successEl=', !!successEl, 'nameInput=', !!nameInput, 'phoneInput=', !!phoneInput);
+      if (DEBUG) _log('setupForm:', cfg.id, 'successEl=', !!successEl, 'nameInput=', !!nameInput, 'phoneInput=', !!phoneInput);
 
       // Format phone
       if (phoneInput) {
@@ -165,7 +173,7 @@
 
 form.addEventListener('submit', async e => {
         e.preventDefault();
-        console.log('[APEX] form submit:', cfg.id, cfg.type);
+        if (DEBUG) _log('form submit:', cfg.id, cfg.type);
         if (form.dataset.submitting === '1') return;
         const rawName = nameInput ? nameInput.value.trim() : '';
         const name = rawName.length > 0 ? rawName : 'lead';
@@ -260,10 +268,10 @@ form.addEventListener('submit', async e => {
               }, {
                 eventID: eventId
               });
-              console.log('[Pixel] Lead tracked:', { eventId, formType: cfg.type, utm: qParam('utm_source') });
+              if (DEBUG) _log('Lead tracked:', { eventId, formType: cfg.type, utm: qParam('utm_source') });
             }
           } catch(e) {
-            console.warn('[Pixel] Lead track failed:', e);
+            _warn('Lead track failed:', e);
           }
 
           // Redirect sang chucmung sau 1.2s (đủ thời gian user thấy success)
@@ -357,11 +365,11 @@ form.addEventListener('submit', async e => {
             referrer:       payload.referrer || ''
           });
         } else {
-          console.warn('[LEAD] ApexSheetsDirect chưa load — kiểm tra sheets-direct.js');
+          _warn('ApexSheetsDirect chưa load — kiểm tra sheets-direct.js');
           p = Promise.resolve({ ok: false, error: 'sheetsdirect_not_loaded' });
         }
       } catch (err) {
-        console.warn('[LEAD] ApexSheetsDirect error:', err);
+        _warn('ApexSheetsDirect error:', err);
         p = Promise.resolve({ ok: false, error: String(err) });
       }
 
@@ -375,9 +383,9 @@ form.addEventListener('submit', async e => {
       // Race: server response hoặc timeout (timeout = ưu tiên chuyển trang nhanh)
       return Promise.race([p, timeoutPromise]).then(function (result) {
         if (result && result.ok) {
-          console.log('[LEAD] ✅ Server confirmed:', result);
+          if (DEBUG) _log('Server confirmed:', result);
         } else {
-          console.warn('[LEAD] ⚠️ Send failed (sẽ retry ở background):', result);
+          _warn('Send failed (sẽ retry ở background):', result);
           // Không block - sheets-direct.js có retry queue
           // Vẫn return ok để UX chuyển trang
           return { ok: true, id: 'sheets_' + idempotencyKey.slice(0, 16), status: 200, retry_pending: true };
@@ -410,7 +418,7 @@ form.addEventListener('submit', async e => {
           + '?idk=' + encodeURIComponent(idempotencyKey)
           + '&form=' + encodeURIComponent(formType || 'hero')
           + '&ts=' + Date.now();
-        console.log('[APEX] → Redirecting to', url);
+        if (DEBUG) _log('→ Redirecting to', url);
         window.location.href = url;
       }, 1200);
     }
@@ -638,9 +646,9 @@ form.addEventListener('submit', async e => {
               }, {
                 eventID: eventId
               });
-              console.log('[Pixel] Lead tracked (multistep):', { eventId });
+              if (DEBUG) _log('Lead tracked (multistep):', { eventId });
             }
-          } catch(e) { console.warn('[Pixel] Lead track failed:', e); }
+          } catch(e) { _warn('Lead track failed:', e); }
 
           // Redirect sang chucmung
           scheduleRedirectToCongrats_(idempotencyKey, name, phone, 'multistep');
@@ -897,7 +905,7 @@ form.addEventListener('submit', async e => {
         hideOverlay();
         const tryPlay = () => {
           video.play().then(() => updatePlayIcon()).catch(err => {
-            console.warn('[Video] play error:', err);
+            _warn('play error:', err);
             // Nếu play fail (autoplay blocked hoặc file lỗi) → hiện lại overlay
             if (overlay) overlay.classList.remove('hidden');
           });
@@ -908,7 +916,7 @@ form.addEventListener('submit', async e => {
           // Timeout fallback: nếu 5s không load được → fallback
           setTimeout(() => {
             if (video.readyState < 2) {
-              console.warn('[Video] load timeout, fallback');
+              _warn('load timeout, fallback');
               if (overlay) overlay.classList.remove('hidden');
             }
           }, 5000);
