@@ -762,14 +762,14 @@ form.addEventListener('submit', async e => {
 
     /* ===========================================================
        8) NEW v20 - COUNTDOWN TIMER
-       Đếm ngược tới 14/09/2026 20:00 (UTC+7)
+       Đếm ngược tới 29/09/2026 20:00 (UTC+7)
        =========================================================== */
     function initCountdownTimer(){
       const daysEl = document.getElementById('cd-days');
       if (!daysEl) return;
 
-      // Target: 14/09/2026 20:00 (UTC+7)
-      const target = new Date('2026-09-15T20:00:00+07:00').getTime();
+      // Target: 29/09/2026 20:00 (UTC+7)
+      const target = new Date('2026-09-29T20:00:00+07:00').getTime();
 
       const pad = n => String(n).padStart(2, '0');
 
