@@ -176,14 +176,28 @@ form.addEventListener('submit', async e => {
         if (DEBUG) _log('form submit:', cfg.id, cfg.type);
         if (form.dataset.submitting === '1') return;
         const rawName = nameInput ? nameInput.value.trim() : '';
-        const name = rawName.length > 0 ? rawName : 'lead';
         const phone = phoneInput ? phoneInput.value.trim() : '';
 
         // Client-side validation
         let ok = true;
-        if (rawName.length > 0 && rawName.length < 2) {
-          if (nameInput) { shake(nameInput); trackEvent('validation_error', `${cfg.type}|name`); }
+        let name = rawName; // mặc định, sẽ set lại khi pass validation
+        // Name: bắt buộc, tối thiểu 2 ký tự (validation nhẹ — không ép đầy đủ Họ Tên)
+        if (rawName.length < 2) {
+          if (nameInput) {
+            nameInput.classList.add('error');
+            shake(nameInput);
+            trackEvent('validation_error', `${cfg.type}|name|${rawName.length === 0 ? 'empty' : 'too_short'}`);
+          }
           ok = false;
+        } else if (rawName.length > 80) {
+          if (nameInput) {
+            nameInput.classList.add('error');
+            shake(nameInput);
+            trackEvent('validation_error', `${cfg.type}|name|too_long`);
+          }
+          ok = false;
+        } else {
+          name = rawName;
         }
         // Phone: bắt buộc. Validation theo đầu số Việt Nam.
         const phoneValid = validateVietnamPhone(phone);
@@ -255,6 +269,7 @@ form.addEventListener('submit', async e => {
           // (đảm bảo UX chuyển trang mượt mà, không flash success rồi nhảy)
           showSuccess(cfg, form, successEl);
 
+          /* ==== TẮT TẠM Meta Pixel Lead event (đăng ký sự kiện thủ công) ====
           // Fire Meta Pixel Lead
           try {
             if (typeof fbq !== 'undefined') {
@@ -280,6 +295,7 @@ form.addEventListener('submit', async e => {
           } catch(e) {
             _warn('Lead track failed:', e);
           }
+          ==== END TẮT Meta Pixel Lead ==== */
 
           // Redirect sang chucmung sau 1.2s (đủ thời gian user thấy success)
           scheduleRedirectToCongrats_(idempotencyKey, name, phone, cfg.type);
@@ -572,14 +588,28 @@ form.addEventListener('submit', async e => {
         e.preventDefault();
         if (form.dataset.submitting === '1') return;
         const rawName = nameInput ? nameInput.value.trim() : '';
-        const name = rawName.length > 0 ? rawName : 'lead';
         const phone = phoneInput ? phoneInput.value.trim() : '';
         const channel = channelInput ? channelInput.value : '';
 
         let ok = true;
-        if (rawName.length > 0 && rawName.length < 2) {
-          if (nameInput) shake(nameInput);
+        let name = rawName; // mặc định
+        // Name: bắt buộc, tối thiểu 2 ký tự (validation nhẹ — không ép đầy đủ Họ Tên)
+        if (rawName.length < 2) {
+          if (nameInput) {
+            nameInput.classList.add('error');
+            shake(nameInput);
+            trackEvent('validation_error', `multistep|name|${rawName.length === 0 ? 'empty' : 'too_short'}`);
+          }
           ok = false;
+        } else if (rawName.length > 80) {
+          if (nameInput) {
+            nameInput.classList.add('error');
+            shake(nameInput);
+            trackEvent('validation_error', `multistep|name|too_long`);
+          }
+          ok = false;
+        } else {
+          name = rawName;
         }
         // Phone: dùng validateVietnamPhone (đầu số VN + +84)
         if (!validateVietnamPhone(phone)) {
@@ -641,6 +671,7 @@ form.addEventListener('submit', async e => {
           trackEvent('multistep_submit_success', `${channel}|id=${sendResult.id}|dur=${Date.now() - submitStartedAt}ms`);
 
           showMultiSuccess(form, successEl);
+          /* ==== TẮT TẠM Meta Pixel Lead event (đăng ký sự kiện thủ công) ====
           try {
             if (typeof fbq !== 'undefined') {
               // eventID dùng idempotencyKey để FB deduplication hoạt động (tránh duplicate)
@@ -662,6 +693,7 @@ form.addEventListener('submit', async e => {
               if (DEBUG) _log('Lead tracked (multistep):', { eventId });
             }
           } catch(e) { _warn('Lead track failed:', e); }
+          ==== END TẮT Meta Pixel Lead ==== */
 
           // Redirect sang chucmung
           scheduleRedirectToCongrats_(idempotencyKey, name, phone, 'multistep');
