@@ -670,66 +670,65 @@ tailwind.config = {
   }
 
   // ════════════════════════════════════════════════════════════════
-  // 6. META PIXEL: Lead (CHỈ 1 LẦN DUY NHẤT trong session)
+  // 6. META PIXEL: Lead (TUYỆT ĐỐI KHÔNG TRÙNG — dù landing đã gửi hay chưa)
   //
-  // Luồng xử lý tránh duplicate lên Facebook:
-  //   - Landing (index.html) gọi fbq('track','Lead') với eventID = 'lead_' + idempotencyKey
-  //     sau khi Google Sheet đã ghi nhận thành công (sendResult.ok === true)
-  //   - Landing lưu sessionStorage.apex_lead_fb_sent = eventID
-  //   - Chucmung đọc cờ này — nếu đã gửi rồi thì KHÔNG gửi lại (FB đã nhận Lead rồi)
-  //   - Nếu chưa có cờ (edge case: user back-button hoặc mở thẳng chucmung.html),
-  //     gửi Lead đúng 1 lần — KHÔNG gửi PageView (vì user đã vào landing trước đó)
-  //   - Nếu landing fail Sheet → KHÔNG chuyển qua chucmung → cờ không bao giờ set
-  //     → khi vào chucmung (chỉ khi user paste URL), cờ rỗng → vẫn gửi 1 lần Lead
-  //     (an toàn: lúc này Sheet đã OK vì chucmung chỉ xuất hiện sau khi redirect từ landing)
+  // Luồng chống duplicate Lead lên Facebook:
+  //   1. Landing (index.html) gửi fbq('track','Lead') với eventID='lead_'+idempotencyKey
+  //      NGAY SAU KHI Google Sheet đã ghi nhận thành công (sendResult.ok === true)
+  //   2. Landing lưu sessionStorage.apex_lead_fb_sent = eventID
+  //   3. Landing redirect → chucmung.html
+  //   4. Chucmung GỬI PageView riêng (FB phân biệt 2 trang)
+  //   5. Chucmung đọc cờ apex_lead_fb_sent:
+  //      - CÓ cờ (đã gửi ở landing) → KHÔNG gửi Lead → TRÁNH TRÙNG 100%
+  //      - KHÔNG có cờ (user mở thẳng chucmung.html) → gửi Lead đúng 1 lần
+  //   6. Reload chucmung → check navigation.type='reload' → KHÔNG gửi lại
   // ════════════════════════════════════════════════════════════════
   function firePixelCompleteRegistration() {
     try {
+      if (typeof fbq === 'undefined') return;
+
       var perfEntries = performance.getEntriesByType && performance.getEntriesByType('navigation');
       var isReload = perfEntries && perfEntries.length > 0 && perfEntries[0].type === 'reload';
 
-      // Lấy cờ đã gửi Lead từ landing
+      // Reload page → KHÔNG gửi Lead (PageView đã gửi ở lần load trước + reload tự có event)
+      if (isReload) return;
+
+      // ─────── KIỂM TRA CỜ: Landing đã gửi Lead chưa? ───────
       var alreadyTracked = sessionStorage.getItem('apex_lead_fb_sent');
-      var idkInFb = sessionStorage.getItem('apex_lead_idk_in_fb') || '';
-      var pvLanding = sessionStorage.getItem('apex_pv_landing');
+      if (alreadyTracked) {
+        // ╔══════════════════════════════════════════════════════╗
+        // ║ Landing đã gửi Lead OK → TUYỆT ĐỐI KHÔNG gửi lại. ║
+        // ║ PageView vẫn đã gửi ở script pixel (2 trang riêng). ║
+        // ╚══════════════════════════════════════════════════════╝
+        return;
+      }
 
-      if (typeof fbq === 'undefined') return;
+      // ─────── EDGE CASE: Vào thẳng chucmung.html (không qua landing) ───────
+      // Lấy idempotencyKey từ sessionStorage hoặc URL query string
+      var idk = '';
+      try { idk = sessionStorage.getItem('apex_lead_idk') || ''; } catch (_) {}
+      if (!idk) {
+        try {
+          var params = new URLSearchParams(location.search);
+          idk = params.get('idk') || '';
+        } catch (_) {}
+      }
+      if (!idk) idk = 'unknown_' + Date.now();
 
-      // ─────── CHỈ XỬ LÝ KHI VÀO LẦN ĐẦU (không reload) ───────
-      if (!isReload) {
+      var eventId = 'lead_' + idk;
+      fbq('track', 'Lead', {
+        content_name: 'APEX Registration',
+        content_category: 'commodity_trading',
+        form_type: 'chucmung_direct',
+        utm_source: 'facebook',
+        event_source_url: location.href
+      }, { eventID: eventId });
 
-        // CASE 1: Landing đã gửi Lead OK rồi → KHÔNG gửi lại gì cả
-        // (kể cả không gửi PageView, vì user đã được tính view khi vào landing)
-        if (alreadyTracked) {
-          // Không làm gì — chỉ giữ cờ, đóng function
-          return;
-        }
-
-        // CASE 2: Vào thẳng chucmung.html (không qua landing)
-        // Gửi Lead 1 lần duy nhất (không PageView) — coi như user đã đăng ký từ trước
-        var idk = '';
-        try { idk = sessionStorage.getItem('apex_lead_idk') || ''; } catch (_) {}
-        if (!idk) {
-          try {
-            var params = new URLSearchParams(location.search);
-            idk = params.get('idk') || '';
-          } catch (_) {}
-        }
-        if (!idk) idk = 'unknown_' + Date.now();
-
-        var eventId = 'lead_' + idk;
-        fbq('track', 'Lead', {
-          content_name: 'APEX Registration',
-          content_category: 'commodity_trading',
-          form_type: 'chucmung_direct',
-          utm_source: 'facebook',
-          event_source_url: location.href
-        }, { eventID: eventId });
-
-        // Đánh dấu đã gửi Lead — chống reload page gửi tiếp
+      // Đánh dấu đã gửi Lead — chống reload/redirect-back gửi tiếp
+      try {
         sessionStorage.setItem('apex_lead_fb_sent', eventId);
         sessionStorage.setItem('apex_lead_idk_in_fb', idk);
-      }
+      } catch (_) {}
     } catch (_) {}
   }
 
@@ -758,15 +757,18 @@ tailwind.config = {
 <!-- protect.js: chan chuot phai + F12 + detect DevTools -->
 <script src="assets/js/protect.js?v=1"></script>
 
-<!-- Meta Pixel (chỉ init, không track PageView — vì user đã vào landing trước) -->
+<!-- Meta Pixel (VẪN gửi PageView để FB biết đây là trang riêng) -->
 <script>
 // Chỉ init pixel nếu chưa có (tránh "Multiple pixels with conflicting versions" khi navigate từ index.html)
-// Lưu ý: chucmung KHÔNG gửi PageView riêng — Landing đã gửi rồi.
-// Logic gửi Lead đã được xử lý trong firePixelCompleteRegistration() ở trên.
 if (!window.fbq) {
   !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._bq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
   fbq('init', '1429098679111905');
 }
+
+// Chucmung GỬI PageView để FB phân biệt 2 trang (đếm view riêng cho chucmung).
+// Lưu cờ để logic Lead bên dưới biết PageView đã được track.
+try { sessionStorage.setItem('apex_pv_chucmung', '1'); } catch(_){}
+fbq('track', 'PageView');
 </script>
 <noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=1429098679111905&ev=PageView&noscript=1"/></noscript>
 
