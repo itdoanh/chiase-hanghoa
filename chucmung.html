@@ -670,66 +670,24 @@ tailwind.config = {
   }
 
   // ════════════════════════════════════════════════════════════════
-  // 6. META PIXEL: Lead (TUYỆT ĐỐI KHÔNG TRÙNG — dù landing đã gửi hay chưa)
+  // 6. META PIXEL: Chucmung TUYỆT ĐỐI KHÔNG gửi Lead
   //
-  // Luồng chống duplicate Lead lên Facebook:
-  //   1. Landing (index.html) gửi fbq('track','Lead') với eventID='lead_'+idempotencyKey
-  //      NGAY SAU KHI Google Sheet đã ghi nhận thành công (sendResult.ok === true)
-  //   2. Landing lưu sessionStorage.apex_lead_fb_sent = eventID
-  //   3. Landing redirect → chucmung.html
-  //   4. Chucmung GỬI PageView riêng (FB phân biệt 2 trang)
-  //   5. Chucmung đọc cờ apex_lead_fb_sent:
-  //      - CÓ cờ (đã gửi ở landing) → KHÔNG gửi Lead → TRÁNH TRÙNG 100%
-  //      - KHÔNG có cờ (user mở thẳng chucmung.html) → gửi Lead đúng 1 lần
-  //   6. Reload chucmung → check navigation.type='reload' → KHÔNG gửi lại
+  // Lý do:
+  //   - Landing (index.html) là nơi duy nhất có form nhập liệu.
+  //   - Landing chỉ gửi fbq('track','Lead') SAU KHI Google Sheet đã ghi nhận thành công
+  //     (sendResult.ok === true), rồi mới redirect sang chucmung.html.
+  //   - Mọi user vào chucmung.html đều đã đi qua landing → Lead đã được tính ở landing.
+  //   - Nếu user mở thẳng chucmung.html (URL paste) → không có form submit → không
+  //     có Google Sheet record → KHÔNG được tính Lead (tránh Lead ảo gây nhiễu FB).
+  //
+  // → Chucmung CHỈ gửi PageView (đã làm ở Meta Pixel script), KHÔNG gửi Lead.
+  // → Hàm này giữ lại dưới dạng no-op để không phải sửa init(), nhưng không làm gì.
   // ════════════════════════════════════════════════════════════════
   function firePixelCompleteRegistration() {
-    try {
-      if (typeof fbq === 'undefined') return;
-
-      var perfEntries = performance.getEntriesByType && performance.getEntriesByType('navigation');
-      var isReload = perfEntries && perfEntries.length > 0 && perfEntries[0].type === 'reload';
-
-      // Reload page → KHÔNG gửi Lead (PageView đã gửi ở lần load trước + reload tự có event)
-      if (isReload) return;
-
-      // ─────── KIỂM TRA CỜ: Landing đã gửi Lead chưa? ───────
-      var alreadyTracked = sessionStorage.getItem('apex_lead_fb_sent');
-      if (alreadyTracked) {
-        // ╔══════════════════════════════════════════════════════╗
-        // ║ Landing đã gửi Lead OK → TUYỆT ĐỐI KHÔNG gửi lại. ║
-        // ║ PageView vẫn đã gửi ở script pixel (2 trang riêng). ║
-        // ╚══════════════════════════════════════════════════════╝
-        return;
-      }
-
-      // ─────── EDGE CASE: Vào thẳng chucmung.html (không qua landing) ───────
-      // Lấy idempotencyKey từ sessionStorage hoặc URL query string
-      var idk = '';
-      try { idk = sessionStorage.getItem('apex_lead_idk') || ''; } catch (_) {}
-      if (!idk) {
-        try {
-          var params = new URLSearchParams(location.search);
-          idk = params.get('idk') || '';
-        } catch (_) {}
-      }
-      if (!idk) idk = 'unknown_' + Date.now();
-
-      var eventId = 'lead_' + idk;
-      fbq('track', 'Lead', {
-        content_name: 'APEX Registration',
-        content_category: 'commodity_trading',
-        form_type: 'chucmung_direct',
-        utm_source: 'facebook',
-        event_source_url: location.href
-      }, { eventID: eventId });
-
-      // Đánh dấu đã gửi Lead — chống reload/redirect-back gửi tiếp
-      try {
-        sessionStorage.setItem('apex_lead_fb_sent', eventId);
-        sessionStorage.setItem('apex_lead_idk_in_fb', idk);
-      } catch (_) {}
-    } catch (_) {}
+    // NO-OP: chucmung không gửi Lead.
+    // Nếu tham khảo sau này muốn gửi CompleteRegistration (một số setup dùng event riêng
+    // để phân biệt funnel), phải dùng eventID KHÁC 'lead_' để tránh dedup với landing.
+    // Hiện tại: KHÔNG gửi gì thêm.
   }
 
   // ════════════════════════════════════════════════════════════════
