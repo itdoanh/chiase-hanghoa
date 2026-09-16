@@ -258,7 +258,9 @@ form.addEventListener('submit', async e => {
           // Fire Meta Pixel Lead
           try {
             if (typeof fbq !== 'undefined') {
-              const eventId = 'lead_' + idempotencyKey + '_' + Date.now();
+              // eventID dùng idempotencyKey (không thêm Date.now) để FB deduplication hoạt động đúng.
+              // Nếu cùng idempotencyKey mà gửi 2 lần → FB sẽ tự dedup (tránh duplicate).
+              const eventId = 'lead_' + idempotencyKey;
               fbq('track', 'Lead', {
                 content_name: 'APEX Registration',
                 content_category: 'commodity_trading',
@@ -268,6 +270,11 @@ form.addEventListener('submit', async e => {
               }, {
                 eventID: eventId
               });
+              // Lưu cờ đã gửi Lead trong session để chucmung.html không gửi lại CompleteRegistration
+              try {
+                sessionStorage.setItem('apex_lead_fb_sent', eventId);
+                sessionStorage.setItem('apex_lead_idk_in_fb', idempotencyKey);
+              } catch(_){}
               if (DEBUG) _log('Lead tracked:', { eventId, formType: cfg.type, utm: qParam('utm_source') });
             }
           } catch(e) {
@@ -636,7 +643,8 @@ form.addEventListener('submit', async e => {
           showMultiSuccess(form, successEl);
           try {
             if (typeof fbq !== 'undefined') {
-              const eventId = 'lead_' + idempotencyKey + '_' + Date.now();
+              // eventID dùng idempotencyKey để FB deduplication hoạt động (tránh duplicate)
+              const eventId = 'lead_' + idempotencyKey;
               fbq('track', 'Lead', {
                 content_name: 'APEX Registration',
                 content_category: 'commodity_trading',
@@ -646,6 +654,11 @@ form.addEventListener('submit', async e => {
               }, {
                 eventID: eventId
               });
+              // Lưu cờ đã gửi Lead trong session để chucmung.html không gửi lại CompleteRegistration
+              try {
+                sessionStorage.setItem('apex_lead_fb_sent', eventId);
+                sessionStorage.setItem('apex_lead_idk_in_fb', idempotencyKey);
+              } catch(_){}
               if (DEBUG) _log('Lead tracked (multistep):', { eventId });
             }
           } catch(e) { _warn('Lead track failed:', e); }

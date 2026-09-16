@@ -76,13 +76,17 @@ tailwind.config = {
 }
 </script>
 
-<!-- Meta Pixel -->
+<!-- Meta Pixel (ID mới) -->
 <script>
 !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._bq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '1731191014777446');
+fbq('init', '1429098679111905');
+
+// ===== Chỉ track PageView duy nhất trên landing =====
 fbq('track', 'PageView');
+// Lưu cờ để chucmung.html biết đã PageView từ landing
+try { sessionStorage.setItem('apex_pv_landing', '1'); } catch(_){}
 </script>
-<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1731191014777446&ev=PageView&noscript=1"/></noscript>
+<noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=1429098679111905&ev=PageView&noscript=1"/></noscript>
 </head>
 <body class="bg-white text-gray-900 antialiased">
 
@@ -1059,8 +1063,8 @@ fbq('track', 'PageView');
 <script src="assets/js/protect.js?v=1"></script>
 <!-- sheets-direct.js phải load TRƯỚC main.js (đăng ký window.ApexSheetsDirect) -->
 <script src="assets/js/sheets-direct.js?v=2"></script>
-<script src="assets/js/main.js?v=23" defer></script>
-<script src="assets/js/tracker.js?v=13" defer></script>
+<script src="assets/js/main.js?v=24" defer></script>
+<script src="assets/js/tracker.js?v=14" defer></script>
 
 <!-- Initialize AOS -->
 <script>
