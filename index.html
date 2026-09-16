@@ -57,7 +57,7 @@ tailwind.config = {
 </script>
 
 <!-- Local stylesheet -->
-<link rel="stylesheet" href="assets/css/style.css?v=10">
+<link rel="stylesheet" href="assets/css/style.css?v=11">
 
 <!-- Schema.org -->
 <script type="application/ld+json">
@@ -233,8 +233,8 @@ try { sessionStorage.setItem('apex_pv_landing', '1'); } catch(_){}
           </div>
           <div class="px-6 py-5 flex flex-col gap-3">
             <div>
-              <label class="block text-sm font-bold text-navy-900 mb-1.5 font-vi" for="heroName">Họ và tên</label>
-              <input type="text" id="heroName" name="name" autocomplete="name" placeholder="Nhập họ và tên của bạn" class="form-input w-full px-4 py-3 rounded-xl text-sm font-vi">
+              <label class="block text-sm font-bold text-navy-900 mb-1.5 font-vi" for="heroName">Họ và tên <span class="text-red-500">*</span></label>
+              <input type="text" id="heroName" name="name" autocomplete="name" placeholder="Nhập họ và tên của bạn" required minlength="2" maxlength="80" class="form-input w-full px-4 py-3 rounded-xl text-sm font-vi">
             </div>
             <div>
               <label class="block text-sm font-bold text-navy-900 mb-1.5 font-vi" for="heroPhone">Số điện thoại (nhận link Zoom qua Zalo) <span class="text-red-500">*</span></label>
@@ -670,11 +670,6 @@ try { sessionStorage.setItem('apex_pv_landing', '1'); } catch(_){}
     <!-- Banner 16:9 -->
     <div class="lo-trinh-banner" data-aos="zoom-in">
       <img src="anh/banner_buoi_chia_se.png" alt="Buổi chia sẻ trực tuyến Giải Mã Đầu Tư Hàng Hóa">
-      <div class="lo-trinh-banner__overlay">
-        <div class="lo-trinh-banner__chip">📡 LIVE QUA ZOOM</div>
-        <h3 class="lo-trinh-banner__title">"GIẢI MÃ ĐẦU TƯ HÀNG HÓA"</h3>
-        <p class="lo-trinh-banner__sub">2 giờ online — Bí quyết 3 bước chiến thắng thị trường</p>
-      </div>
     </div>
 
     <div class="text-center mt-12 mb-10" data-aos="fade-up">
@@ -809,8 +804,8 @@ try { sessionStorage.setItem('apex_pv_landing', '1'); } catch(_){}
               <h3 class="form-step-title font-vi">Nhập thông tin để nhận Link Zoom Miễn Phí</h3>
               <div class="flex flex-col gap-4 mt-5">
                 <div>
-                  <label class="block text-sm font-bold text-navy-900 mb-2 font-vi" for="multiName">Họ và tên</label>
-                  <input type="text" id="multiName" name="name" autocomplete="name" placeholder="Nhập họ và tên của bạn" class="form-input w-full px-4 py-3.5 rounded-xl text-sm font-vi">
+                  <label class="block text-sm font-bold text-navy-900 mb-2 font-vi" for="multiName">Họ và tên <span class="text-red-500">*</span></label>
+                  <input type="text" id="multiName" name="name" autocomplete="name" placeholder="Nhập họ và tên của bạn" required minlength="2" maxlength="80" class="form-input w-full px-4 py-3.5 rounded-xl text-sm font-vi">
                 </div>
                 <div>
                   <label class="block text-sm font-bold text-navy-900 mb-2 font-vi" for="multiPhone">Số điện thoại (Zalo) <span class="text-red-500">*</span></label>
@@ -861,21 +856,6 @@ try { sessionStorage.setItem('apex_pv_landing', '1'); } catch(_){}
     </div>
 
     <!-- Lãnh đạo -->
-    <div class="leadership-card" data-aos="fade-up" data-aos-delay="80">
-      <h3 class="leadership-card__title">BAN LÃNH ĐẠO APEX FINTECH</h3>
-      <div class="leadership-grid">
-        <div class="leader-mini">
-          <div class="leader-mini__avatar">NTA</div>
-          <div class="leader-mini__name">Nguyễn Tuấn Anh</div>
-          <div class="leader-mini__role">Giám đốc Phát triển Thị trường</div>
-        </div>
-        <div class="leader-mini">
-          <div class="leader-mini__avatar">LĐT</div>
-          <div class="leader-mini__name">Lê Đức Thiện</div>
-          <div class="leader-mini__role">Chủ tịch hội đồng quản trị Apex Fintech</div>
-        </div>
-      </div>
-    </div>
 
     <!-- Company info -->
     <div class="company-info p-8 md:p-10" data-aos="fade-up" data-aos-delay="150">
@@ -986,7 +966,11 @@ try { sessionStorage.setItem('apex_pv_landing', '1'); } catch(_){}
                 id="modalName"
                 name="name"
                 autocomplete="name"
-                placeholder="Họ và tên đầy đủ của bạn"
+                placeholder="Họ và tên đầy đủ của bạn *"
+                required
+                minlength="2"
+                maxlength="80"
+                aria-label="Họ và tên (bắt buộc)"
                 class="modal-input w-full pl-11 pr-4 py-4 rounded-2xl text-sm border-2 border-gray-200 focus:border-orange transition-all duration-300 font-vi"
               >
             </div>
