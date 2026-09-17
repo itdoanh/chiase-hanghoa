@@ -3,7 +3,7 @@
    Bảo vệ frontend production:
      - Chặn chuột phải (context menu)
      - Chặn F12, Ctrl+Shift+I/J/C, Ctrl+U (view source)
-     - Detect DevTools mở → tùy chọn reload hoặc blur
+     - Detect DevTools mở → blur trang
 
    Lưu ý: Đây chỉ là lớp bảo vệ "thân thiện" — DevTools vẫn có thể bypass
    được. Mục tiêu chính: NGĂN người dùng phổ thông F12 xem code/logic.
@@ -20,15 +20,30 @@
   if (!PROTECT_ENABLED) return;
 
   // ════════════════════════════════════════════════════════════════
-  // 1. Chặn chuột phải
+  // 0. NHẬN DIỆN MÔI TRƯỜNG
+  //    - BỎ QUA TOÀN BỘ logic anti-DevTools trên mobile/tablet.
+  //    - Mobile không có DevTools thật, nhưng hiệu số outer/inner vẫn
+  //      > threshold khi thanh URL/navigation bar thay đổi → false-positive.
+  //    - Detect bằng userAgent + maxTouchPoints (chuẩn W3C).
   // ════════════════════════════════════════════════════════════════
-  document.addEventListener('contextmenu', function(e){
-    e.preventDefault();
-    return false;
-  });
+  var ua = (navigator.userAgent || '').toLowerCase();
+  var isMobileUA = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile|touch/i.test(ua);
+  var hasTouch = (navigator.maxTouchPoints || 0) > 1;
+  var isSmallViewport = Math.min(window.screen.width, window.screen.height) < 768;
+  var IS_MOBILE = isMobileUA || (hasTouch && isSmallViewport);
 
   // ════════════════════════════════════════════════════════════════
-  // 2. Chặn phím tắt mở DevTools / View Source
+  // 1. Chặn chuột phải (vẫn chặn trên desktop, BỎ trên mobile vì không cần)
+  // ════════════════════════════════════════════════════════════════
+  if (!IS_MOBILE) {
+    document.addEventListener('contextmenu', function(e){
+      e.preventDefault();
+      return false;
+    });
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // 2. Chặn phím tắt mở DevTools / View Source (chỉ desktop)
   //    F12           → DevTools
   //    Ctrl+Shift+I  → DevTools (Inspect)
   //    Ctrl+Shift+J  → DevTools (Console)
@@ -37,61 +52,82 @@
   //    Ctrl+S         → Save Page (chặn luôn)
   //    Cmd (Mac) variants cũng được cover
   // ════════════════════════════════════════════════════════════════
-  document.addEventListener('keydown', function(e){
-    var key = (e.key || '').toLowerCase();
-    var blocked = false;
+  if (!IS_MOBILE) {
+    document.addEventListener('keydown', function(e){
+      var key = (e.key || '').toLowerCase();
+      var blocked = false;
 
-    // F12
-    if (key === 'f12') blocked = true;
+      // F12
+      if (key === 'f12') blocked = true;
 
-    // Ctrl + Shift + I/J/C
-    if (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) blocked = true;
+      // Ctrl + Shift + I/J/C
+      if (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) blocked = true;
 
-    // Ctrl + U (view source)
-    if (e.ctrlKey && key === 'u') blocked = true;
+      // Ctrl + U (view source)
+      if (e.ctrlKey && key === 'u') blocked = true;
 
-    // Ctrl + S (save page)
-    if (e.ctrlKey && key === 's') blocked = true;
+      // Ctrl + S (save page)
+      if (e.ctrlKey && key === 's') blocked = true;
 
-    // Cmd + Option + I (Mac DevTools)
-    if (e.metaKey && e.altKey && key === 'i') blocked = true;
+      // Cmd + Option + I (Mac DevTools)
+      if (e.metaKey && e.altKey && key === 'i') blocked = true;
 
-    if (blocked) {
-      e.preventDefault();
-      e.stopPropagation();
-      return false;
-    }
-  }, true);
+      if (blocked) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    }, true);
+  }
 
   // ════════════════════════════════════════════════════════════════
-  // 3. Phát hiện DevTools đang mở (best-effort)
+  // 3. Phát hiện DevTools đang mở (CHỈ desktop, threshold an toàn)
+  //
   //    Trick: so sánh outerWidth/Height với innerWidth/Height.
   //    Nếu chênh lệch lớn → cửa sổ DevTools đang dock bên cạnh.
-  //    BẮT BUỘC phải bật ở chế độ threshold hợp lý, false-positive có thể xảy ra.
+  //
+  //    Threshold 320px: Chrome DevTools docked tối thiểu ~300-400px.
+  //    Trước đây threshold = 160 quá thấp → false-positive trên mobile
+  //    (thanh URL thay đổi làm outerHeight khác innerHeight > 160).
+  //
+  //    Ngoài ra kiểm tra thêm: outerWidth < 0 (DevTools "separate window"
+  //    trên một số Chrome version). Nếu phát hiện → DevTools đang mở.
   // ════════════════════════════════════════════════════════════════
+  if (IS_MOBILE) return; // ← QUAN TRỌNG: mobile không cần detect DevTools
+
   var devToolsOpen = false;
-  var threshold = 160;
+  var DEVTOOLS_THRESHOLD = 320; // px — an toàn cho desktop, không false-positive
+
   function checkDevTools(){
     try {
       var widthDiff  = (window.outerWidth  - window.innerWidth);
       var heightDiff = (window.outerHeight - window.innerHeight);
-      if (widthDiff > threshold || heightDiff > threshold) {
+
+      // DevTools "separate window": outerWidth/Height = 0 hoặc âm
+      var isSeparateWindow =
+        (window.outerWidth - window.innerWidth) < -50 ||
+        (window.outerHeight - window.innerHeight) < -50;
+
+      if (widthDiff > DEVTOOLS_THRESHOLD || heightDiff > DEVTOOLS_THRESHOLD || isSeparateWindow) {
         if (!devToolsOpen) {
           devToolsOpen = true;
           onDevToolsOpen();
         }
       } else {
-        devToolsOpen = false;
+        if (devToolsOpen) {
+          devToolsOpen = false;
+          onDevToolsClose();
+        }
       }
     } catch(_) {}
   }
 
   function onDevToolsOpen(){
-    // Tùy chọn 1: blur trang (làm mờ nội dung)
     document.documentElement.classList.add('apex-devtools-open');
-    // Tùy chọn 2: redirect. Hiện tại KHÔNG redirect (UX kém) — chỉ blur.
-    // Nếu muốn chuyển hướng: uncomment dòng dưới:
-    // location.replace('about:blank');
+  }
+
+  function onDevToolsClose(){
+    document.documentElement.classList.remove('apex-devtools-open');
   }
 
   // Inject CSS khi DevTools mở (blur + warning overlay)
